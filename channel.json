@@ -1,4 +1,4 @@
 [
-  { "id": "tsports", "stream": "edge2/tsports", "name": "T Sports" },
-  { "id": "channel9", "stream": "edge2/channel9", "name": "Channel 9" }
+  { "id": "1", "stream": "edge2/tsports", "name": "T Sports" },
+  { "id": "9", "stream": "edge2/channel9", "name": "Channel 9" }
 ]
