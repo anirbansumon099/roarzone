@@ -6,7 +6,7 @@ const path = require("path");
 const app = express();
 const PORT = process.env.PORT || 3000;
 
-// --- Load channel.json safely ---
+// Load channel.json
 let channels = [];
 try {
     const filePath = path.join(__dirname, "channel.json");
@@ -17,10 +17,10 @@ try {
     process.exit(1);
 }
 
-// --- Extract final m3u8 URL from backend ---
-async function getM3U8Source(stream) {
+// Fetch tokened m3u8 URL from backend
+async function fetchTokenedURL(stream) {
     try {
-        const backendURL =`http://tv.roarzone.info//player.php?stream=${stream}`;
+        const backendURL = `http://tv.roarzone.info//player.php?stream=${stream}`;
         console.log(`[DEBUG] Fetching backend URL: ${backendURL}`);
 
         const res = await axios.get(backendURL, {
@@ -34,10 +34,8 @@ async function getM3U8Source(stream) {
         });
 
         const html = res.data;
-
         console.log("[DEBUG] Backend response snippet:", html.slice(0, 300));
 
-        // Multi-pattern regex to find tokened m3u8 URL
         const patterns = [
             /source:\s*["'](.*?\.m3u8.*?)["']/i,
             /sources:\s*\[\s*["'](.*?\.m3u8.*?)["']/i,
@@ -48,60 +46,65 @@ async function getM3U8Source(stream) {
         for (const p of patterns) {
             const match = html.match(p);
             if (match && match[1]) {
-                console.log("[DEBUG] Found m3u8 URL:", match[1]);
+                console.log("[DEBUG] Found tokened m3u8 URL:", match[1]);
                 return match[1];
             }
         }
 
-        console.warn("[WARN] No m3u8 URL found in backend HTML");
+        console.warn("[WARN] No m3u8 URL found for stream:", stream);
         return null;
 
     } catch (err) {
-        console.error("[ERROR] Backend fetch failed:", err.message);
+        console.error("[ERROR] Failed fetching backend URL:", err.message);
         return null;
     }
 }
 
-// --- Playlist route ---
+// Single channel master playlist
 app.get("/:id/master.m3u8", async (req, res) => {
     const id = req.params.id;
     console.log(`[DEBUG] Requested channel id: ${id}`);
 
-    // Find channel by id field
     const ch = channels.find(c => c.id == id);
+    if (!ch) return res.status(404).send("#EXTM3U\n#EXT-X-ERROR: Channel Not Found");
 
-    if (!ch) {
-        console.warn(`[WARN] Channel with id=${id} not found`);
-        return res.status(404).send("#EXTM3U\n#EXT-X-ERROR: Channel Not Found");
-    }
+    const finalURL = await fetchTokenedURL(ch.stream);
+    if (!finalURL) return res.status(500).send("#EXTM3U\n#EXT-X-ERROR: Token Not Found");
 
-    console.log(`[DEBUG] Found channel: ${ch.channelname} (stream: ${ch.stream})`);
-
-    // Get valid token URL
-    const finalSource = await getM3U8Source(ch.stream);
-
-    if (!finalSource) {
-        console.error("[ERROR] Could not get valid m3u8 URL for channel:", ch.channelname);
-        return res.status(500).send("#EXTM3U\n#EXT-X-ERROR: Token Not Found");
-    }
-
-    // --- Generate Master M3U8 playlist ---
     const playlist = `#EXTM3U
 #EXT-X-STREAM-INF:BANDWIDTH=2500000,RESOLUTION=1280x720,CODECS="avc1.42e01e,mp4a.40.2"
-${finalSource}
+${finalURL}
 `;
 
-    console.log(`[DEBUG] Generated Master playlist for channel: ${ch.channelname}`);
+    console.log(`[DEBUG] Generated master playlist for channel: ${ch.channelname}`);
     res.setHeader("Content-Type", "application/x-mpegURL");
     res.send(playlist);
 });
 
-// --- Base route ---
-app.get("/", (req, res) => {
-    res.send("🎵 M3U Playlist Generator Running 🎵");
+// Aggregated playlist for all channels
+app.get("/all/playlists.m3u8", async (req, res) => {
+    console.log("[DEBUG] Generating aggregated playlist for all channels...");
+    let playlist = "#EXTM3U\n";
+
+    for (const ch of channels) {
+        const finalURL = await fetchTokenedURL(ch.stream);
+        if (!finalURL) {
+            console.warn(`[WARN] Skipping channel ${ch.channelname} (token not found)`);
+            continue;
+        }
+
+        playlist += `#EXTINF:-1,${ch.channelname}\n http://roarzone.vercel.app/${ch.id}/master.m3u8\n`;
+        console.log(`[DEBUG] Added channel ${ch.channelname}`);
+    }
+
+    res.setHeader("Content-Type", "application/x-mpegURL");
+    res.send(playlist);
 });
 
-// --- Start server ---
-app.listen(PORT, () => {
-    console.log(`✅ Server running on port ${PORT}`);
+// Home route
+app.get("/", (req, res) => {
+    res.send("🎵 Master M3U Playlist Generator Running 🎵");
 });
+
+// Start server
+app.listen(PORT, () => console.log(`✅ Server running on port ${PORT}`));
