@@ -95,11 +95,32 @@ app.get("/all/playlists.m3u8", async (req, res) => {
 
         playlist += `#EXTINF:-1,${ch.name} \n 
         http://roarzone.vercel.app/${ch.id}/master.m3u8\n`;
+		// আপনার রো টেক্সট (single line string)
+let rowText = playlist;
+    
+    //"#EXTM3U #EXTINF:-1,T Sports http://roarzone.vercel.app/1/master.m3u8 #EXTINF:-1,Channel 9 http://roarzone.vercel.app/9/master.m3u8";
+
+// প্রতিটি চ্যানেল আলাদা লাইনে আনার জন্য space বা pattern দিয়ে split করতে হবে
+// এখানে আমরা #EXTINF দিয়ে split করব
+let channels = rowText.split("#EXTINF:");
+
+// এবার নতুন ফরম্যাটে join করি
+let formattedText = "#EXTM3U\n"; // শুরুতে #EXTM3U
+channels.forEach((ch, index) => {
+    if(ch.trim() !== "") { // খালি অংশ বাদ
+        formattedText += "#EXTINF:" + ch.trim() + "\n";
+    }
+});
+
+console.log(formattedText);
+
+
+        
         console.log(`[DEBUG] Added channel ${ch.channelname}`);
     }
 
     res.setHeader("Content-Type", "application/x-mpegURL");
-    res.send(playlist);
+    res.send(formattedText);
 });
 
 // Home route
