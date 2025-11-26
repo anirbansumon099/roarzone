@@ -1,92 +1,79 @@
-const axios = require("axios");
 const express = require("express");
+const axios = require("axios");
 const fs = require("fs");
+
 const app = express();
 const PORT = process.env.PORT || 3000;
 
-// -------------------------------
-// Load channels from JSON
-// -------------------------------
-let channelsList = [];
+// Load channel.json
+let channels = [];
 try {
-    channelsList = JSON.parse(fs.readFileSync("channel.json", "utf-8"));
+    channels = JSON.parse(fs.readFileSync("./channel.json", "utf8"));
 } catch (err) {
-    console.error("channel.json read error:", err.message);
+    console.error("Error loading channel.json:", err.message);
 }
 
-// -------------------------------
-// Extract Clappr Source (with token)
-// -------------------------------
-async function extractClapprSource(streamId) {
-    const url = `http://103.166.152.22:8080/player.php?stream=${streamId}`;
-
+// Extract final token URL from backend
+async function getValidSource(stream) {
     try {
-        const res = await axios.get(url, { timeout: 10000 });
-        const body = res.data;
+        const backendURL = `http://103.166.152.22:8080/player.php?stream=${stream}`;
 
-        // Find Clappr source
-        const match = body.match(/source:\s*["'](.*?)["']/);
-        return match ? match[1] : null;
-    } catch (e) {
-        console.log("Fetch error:", e.message);
+        const res = await axios.get(backendURL, {
+            timeout: 8000,
+            headers: {
+                "User-Agent":
+                    "Mozilla/5.0 (Windows NT 10.0; Win64; x64)"
+            }
+        });
+
+        const html = res.data;
+
+        // Extract Clappr "source: 'xxx'"
+        const match = html.match(/source:\s*["'](.*?)["']/);
+
+        if (!match) return null;
+
+        return match[1];
+    } catch (err) {
+        console.error("Fetch Error:", err.message);
         return null;
     }
 }
 
-// -------------------------------
-// Dynamic per-channel playlist
-// URL: /tsports/master.m3u8
-// -------------------------------
-app.get("/:channel_id/master.m3u8", async (req, res) => {
-    const channel_id = req.params.channel_id;
+// m3u playlist route
+app.get("/:id/master.m3u8", async (req, res) => {
+    const id = parseInt(req.params.id);
+    const index = id - 1;
 
-    const ch = channelsList.find(c => c.id === channel_id);
-    if (!ch) return res.status(404).send("Channel not found");
-
-    const sourceUrl = await extractClapprSource(ch.stream);
-    if (!sourceUrl) return res.status(404).send("Source not found");
-
-    const m3u = `#EXTM3U
-#EXT-X-VERSION:3
-#EXTINF:-1 tvg-id="${ch.id}" tvg-name="${ch.name}",${ch.name}
-${sourceUrl}
-`;
-
-    res.setHeader("Content-Type", "application/vnd.apple.mpegurl");
-    res.send(m3u);
-});
-
-// -------------------------------
-// Generate MAIN master playlist (all channels)
-// URL: /playlist.m3u
-// -------------------------------
-app.get("/playlist.m3u", async (req, res) => {
-    let output = "#EXTM3U\n";
-
-    for (const ch of channelsList) {
-        const link = `${req.protocol}://${req.get("host")}/${ch.id}/master.m3u8`;
-
-        output += `#EXTINF:-1 tvg-id="${ch.id}" tvg-name="${ch.name}",${ch.name}
-${link}
-`;
+    if (!channels[index]) {
+        return res.status(404).send("#EXTM3U\n#EXT-X-ERROR: Channel Not Found");
     }
 
-    res.setHeader("Content-Type", "application/vnd.apple.mpegurl");
-    res.send(output);
+    const ch = channels[index];
+
+    // Extract token link
+    const finalSource = await getValidSource(ch.stream);
+
+    if (!finalSource) {
+        return res.status(500).send("#EXTM3U\n#EXT-X-ERROR: Token Not Found");
+    }
+
+    // Playlist output
+    const playlist = `#EXTM3U
+#EXTINF:-1, ${ch.channelname}
+${finalSource}
+`;
+
+    res.setHeader("Content-Type", "application/x-mpegURL");
+    res.send(playlist);
 });
 
-// -------------------------------
-// Channel list route
-// -------------------------------
-app.get("/channels", (req, res) => {
-    res.json(channelsList);
+// Base route
+app.get("/", (req, res) => {
+    res.send("Playlist Generator is Running...");
 });
 
-// -------------------------------
 // Start Server
-// -------------------------------
 app.listen(PORT, () => {
-    console.log("Server running on port", PORT);
+    console.log(`Server running on port ${PORT}`);
 });
-
-module.exports = app;
