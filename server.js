@@ -93,7 +93,8 @@ app.get("/all/playlists.m3u8", async (req, res) => {
             continue;
         }
 
-        playlist += `#EXTINF:-1,${ch.channelname}\n http://roarzone.vercel.app/${ch.id}/master.m3u8\n`;
+        playlist += `#EXTINF:-1,${ch.name} \n 
+        http://roarzone.vercel.app/${ch.id}/master.m3u8\n`;
         console.log(`[DEBUG] Added channel ${ch.channelname}`);
     }
 
