@@ -2,6 +2,7 @@ const express = require("express");
 const axios = require("axios");
 const fs = require("fs");
 const path = require("path");
+const { URL } = require("url"); // Node.js এর বিল্ট-ইন URL মডিউল ইমপোর্ট করা হলো
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -14,13 +15,13 @@ try {
     console.log(`[DEBUG] Loaded ${channels.length} channels from channel.json`);
 } catch (err) {
     console.error("[ERROR] Failed to load channel.json:", err.message);
-    process.exit(1);
+    // process.exit(1); 
 }
 
 // Fetch tokened m3u8 URL from backend
 async function fetchTokenedURL(stream) {
     try {
-        const backendURL = `http://tv.roarzone.info//player.php?stream=${stream}`;
+        const backendURL = `http://tv.roarzone.info//player.php?stream=${stream}`; 
         console.log(`[DEBUG] Fetching backend URL: ${backendURL}`);
 
         const res = await axios.get(backendURL, {
@@ -34,7 +35,6 @@ async function fetchTokenedURL(stream) {
         });
 
         const html = res.data;
-        console.log("[DEBUG] Backend response snippet:", html.slice(0, 300));
 
         const patterns = [
             /source:\s*["'](.*?\.m3u8.*?)["']/i,
@@ -60,6 +60,35 @@ async function fetchTokenedURL(stream) {
     }
 }
 
+// Helper function to extract token and update URL path
+function updateM3U8Path(fetchedURL) {
+    let finalURL = fetchedURL;
+
+    try {
+        // Node's built-in URL class used here
+        const urlObj = new URL(fetchedURL);
+        const token = urlObj.searchParams.get("token");
+
+        if (token) {
+            // index.m3u8 পর্যন্ত অংশটি ফেলে দিয়ে baseUrl তৈরি করা
+            const baseUrl = fetchedURL.split('index.m3u8')[0];
+            
+            // নতুন কাঙ্ক্ষিত পাথের সাথে টোকেন যুক্ত করা
+            const updatedPath = `tracks-v1a1/mono.m3u8?token=${token}`;
+            finalURL = baseUrl + updatedPath;
+            console.log(`[DEBUG] Updated M3U8 link with new path: ${finalURL}`);
+        } else {
+            console.warn(`[WARN] Token not found in fetched URL. Using original URL.`);
+        }
+    } catch (e) {
+        // If fetchedURL is not a valid URL (e.g., malformed), use the original fetchedURL
+        console.error(`[ERROR] Failed to parse URL or token: ${e.message}. Using original URL.`);
+    }
+
+    return finalURL;
+}
+
+
 // Single channel master playlist
 app.get("/:id/master.m3u8", async (req, res) => {
     const id = req.params.id;
@@ -68,9 +97,13 @@ app.get("/:id/master.m3u8", async (req, res) => {
     const ch = channels.find(c => c.id == id);
     if (!ch) return res.status(404).send("#EXTM3U\n#EXT-X-ERROR: Channel Not Found");
 
-    const finalURL = await fetchTokenedURL(ch.stream);
-    if (!finalURL) return res.status(500).send("#EXTM3U\n#EXT-X-ERROR: Token Not Found");
+    const fetchedURL = await fetchTokenedURL(ch.stream);
+    if (!fetchedURL) return res.status(500).send("#EXTM3U\n#EXT-X-ERROR: Token Not Found");
 
+    // --- টোকেন বের করে URL আপডেট করার লজিক ---
+    const finalURL = updateM3U8Path(fetchedURL);
+    // --- লজিক শেষ ---
+    
     const playlist = `#EXTM3U
 #EXT-X-STREAM-INF:BANDWIDTH=2500000,RESOLUTION=1280x720,CODECS="avc1.42e01e,mp4a.40.2"
 ${finalURL}
@@ -81,48 +114,30 @@ ${finalURL}
     res.send(playlist);
 });
 
-// Aggregated playlist for all channels
+// Aggregated playlist for all channels - সংশোধিত রুট
 app.get("/all/playlists.m3u", async (req, res) => {
     console.log("[DEBUG] Generating aggregated playlist for all channels...");
-    let playlist = "#EXTM3U\n";
-	let formattedText = "#EXTM3U\n";
+    let playlist = "#EXTM3U\n"; 
     
-
     for (const ch of channels) {
-        const finalURL = await fetchTokenedURL(ch.stream);
-        if (!finalURL) {
+        const fetchedURL = await fetchTokenedURL(ch.stream); 
+
+        if (!fetchedURL) {
             console.warn(`[WARN] Skipping channel ${ch.channelname} (token not found)`);
             continue;
         }
 
-        playlist += `#EXTINF:-1,${ch.name} \n 
-        http://roarzone.vercel.app/${ch.id}/master.m3u8\n`;
-		// আপনার রো টেক্সট (single line string)
- let rowText  = playlist;
-    
-    //"#EXTM3U #EXTINF:-1,T Sports http://roarzone.vercel.app/1/master.m3u8 #EXTINF:-1,Channel 9 http://roarzone.vercel.app/9/master.m3u8";
+        const channelProxyURL = `http://roarzone.vercel.app/${ch.id}/master.m3u8`;
 
-// প্রতিটি চ্যানেল আলাদা লাইনে আনার জন্য space বা pattern দিয়ে split করতে হবে
-// এখানে আমরা #EXTINF দিয়ে split করব
-let channels = rowText.split("#EXTINF:");
-
-// এবার নতুন ফরম্যাটে join করি
-// শুরুতে #EXTM3U
-channels.forEach((ch, index) => {
-    if(ch.trim() !== "") { // খালি অংশ বাদ
-        formattedText += "#EXTINF:" + ch.trim() + "\n";
-    }
-});
-
-console.log(formattedText);
-
-
+        // সঠিক M3U ফরম্যাটে playlist তৈরি করা
+        // channelname ব্যবহার করা হলো, যা সাধারণত ডিসপ্লে-এর জন্য ব্যবহৃত হয়
+        playlist += `#EXTINF:-1,${ch.channelname}\n${channelProxyURL}\n`; 
         
         console.log(`[DEBUG] Added channel ${ch.channelname}`);
     }
 
     res.setHeader("Content-Type", "application/x-mpegURL");
-    res.send(formattedText);
+    res.send(playlist);
 });
 
 // Home route
