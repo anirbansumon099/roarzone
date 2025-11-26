@@ -118,7 +118,7 @@ app.get("/all/playlists.m3u", async (req, res) => {
         const channelProxyURL = `http://roarzone.vercel.app/${ch.id}/master.m3u8`;
 
         // সঠিক M3U ফরম্যাটে playlist তৈরি করা
-        playlist += `#EXTINF:-1,${ch.channelname}\n${channelProxyURL}\n`; 
+        playlist += `#EXTINF:-1,${ch.name}\n${channelProxyURL}\n`; 
         
         // Note: এখানে ch.name এর বদলে ch.channelname ব্যবহার করা হয়েছে, 
         // কারণ মূল কোডে channelname ব্যবহার করা হয়েছে।
