@@ -20,7 +20,7 @@ try {
 // --- Extract final m3u8 URL from backend ---
 async function getM3U8Source(stream) {
     try {
-        const backendURL = `http://103.166.152.22:8080/player.php?stream=${stream}`;
+        const backendURL =`http://tv.roarzone.info//player.php?stream=${stream}`;
         console.log(`[DEBUG] Fetching backend URL: ${backendURL}`);
 
         const res = await axios.get(backendURL, {
