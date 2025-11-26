@@ -2,7 +2,7 @@ const express = require("express");
 const axios = require("axios");
 const fs = require("fs");
 const path = require("path");
-const { URL } = require("url"); // Node.js এর বিল্ট-ইন URL মডিউল ইমপোর্ট করা হলো
+const { URL } = require("url"); 
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -65,15 +65,11 @@ function updateM3U8Path(fetchedURL) {
     let finalURL = fetchedURL;
 
     try {
-        // Node's built-in URL class used here
         const urlObj = new URL(fetchedURL);
         const token = urlObj.searchParams.get("token");
 
         if (token) {
-            // index.m3u8 পর্যন্ত অংশটি ফেলে দিয়ে baseUrl তৈরি করা
             const baseUrl = fetchedURL.split('index.m3u8')[0];
-            
-            // নতুন কাঙ্ক্ষিত পাথের সাথে টোকেন যুক্ত করা
             const updatedPath = `tracks-v1a1/mono.m3u8?token=${token}`;
             finalURL = baseUrl + updatedPath;
             console.log(`[DEBUG] Updated M3U8 link with new path: ${finalURL}`);
@@ -81,7 +77,6 @@ function updateM3U8Path(fetchedURL) {
             console.warn(`[WARN] Token not found in fetched URL. Using original URL.`);
         }
     } catch (e) {
-        // If fetchedURL is not a valid URL (e.g., malformed), use the original fetchedURL
         console.error(`[ERROR] Failed to parse URL or token: ${e.message}. Using original URL.`);
     }
 
@@ -89,7 +84,7 @@ function updateM3U8Path(fetchedURL) {
 }
 
 
-// Single channel master playlist
+// Single channel master playlist (No change here - it still handles token fetch/update)
 app.get("/:id/master.m3u8", async (req, res) => {
     const id = req.params.id;
     console.log(`[DEBUG] Requested channel id: ${id}`);
@@ -100,9 +95,7 @@ app.get("/:id/master.m3u8", async (req, res) => {
     const fetchedURL = await fetchTokenedURL(ch.stream);
     if (!fetchedURL) return res.status(500).send("#EXTM3U\n#EXT-X-ERROR: Token Not Found");
 
-    // --- টোকেন বের করে URL আপডেট করার লজিক ---
     const finalURL = updateM3U8Path(fetchedURL);
-    // --- লজিক শেষ ---
     
     const playlist = `#EXTM3U
 #EXT-X-STREAM-INF:BANDWIDTH=2500000,RESOLUTION=1280x720,CODECS="avc1.42e01e,mp4a.40.2"
@@ -114,25 +107,21 @@ ${finalURL}
     res.send(playlist);
 });
 
-// Aggregated playlist for all channels - সংশোধিত রুট
+// Aggregated playlist for all channels - চূড়ান্ত সংশোধিত রুট
 app.get("/all/playlists.m3u", async (req, res) => {
-    console.log("[DEBUG] Generating aggregated playlist for all channels...");
+    console.log("[DEBUG] Generating aggregated playlist for all channels (using channel.json only)...");
     let playlist = "#EXTM3U\n"; 
     
+    // fetchTokenedURL বা অন্য কোনো async কাজ ছাড়াই শুধু channels অ্যারে লুপ করা হচ্ছে
     for (const ch of channels) {
-        const fetchedURL = await fetchTokenedURL(ch.stream); 
-
-        if (!fetchedURL) {
-            console.warn(`[WARN] Skipping channel ${ch.channelname} (token not found)`);
-            continue;
-        }
-
+        // channel.json এর data ব্যবহার করে প্রক্সি URL তৈরি করা
         const channelProxyURL = `http://roarzone.vercel.app/${ch.id}/master.m3u8`;
 
         // সঠিক M3U ফরম্যাটে playlist তৈরি করা
-        // channelname ব্যবহার করা হলো, যা সাধারণত ডিসপ্লে-এর জন্য ব্যবহৃত হয়
         playlist += `#EXTINF:-1,${ch.channelname}\n${channelProxyURL}\n`; 
         
+        // Note: এখানে ch.name এর বদলে ch.channelname ব্যবহার করা হয়েছে, 
+        // কারণ মূল কোডে channelname ব্যবহার করা হয়েছে।
         console.log(`[DEBUG] Added channel ${ch.channelname}`);
     }
 
