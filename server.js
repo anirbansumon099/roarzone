@@ -82,9 +82,11 @@ ${finalURL}
 });
 
 // Aggregated playlist for all channels
-app.get("/all/playlists.m3u8", async (req, res) => {
+app.get("/all/playlists.m3u", async (req, res) => {
     console.log("[DEBUG] Generating aggregated playlist for all channels...");
     let playlist = "#EXTM3U\n";
+	let formattedText = "#EXTM3U\n";
+    
 
     for (const ch of channels) {
         const finalURL = await fetchTokenedURL(ch.stream);
@@ -96,7 +98,7 @@ app.get("/all/playlists.m3u8", async (req, res) => {
         playlist += `#EXTINF:-1,${ch.name} \n 
         http://roarzone.vercel.app/${ch.id}/master.m3u8\n`;
 		// আপনার রো টেক্সট (single line string)
-let rowText = playlist;
+ let rowText  = playlist;
     
     //"#EXTM3U #EXTINF:-1,T Sports http://roarzone.vercel.app/1/master.m3u8 #EXTINF:-1,Channel 9 http://roarzone.vercel.app/9/master.m3u8";
 
@@ -105,7 +107,7 @@ let rowText = playlist;
 let channels = rowText.split("#EXTINF:");
 
 // এবার নতুন ফরম্যাটে join করি
-let formattedText = "#EXTM3U\n"; // শুরুতে #EXTM3U
+// শুরুতে #EXTM3U
 channels.forEach((ch, index) => {
     if(ch.trim() !== "") { // খালি অংশ বাদ
         formattedText += "#EXTINF:" + ch.trim() + "\n";
