@@ -1,0 +1,457 @@
+[
+    {
+        "id": "tsports",
+        "stream": "edge2/tsports",
+        "name": "t Sports"
+    },
+    {
+        "id": "starsports1",
+        "stream": "bk/25",
+        "name": "Star Sports 1"
+    },
+    {
+        "id": "starsports2",
+        "stream": "bk/26",
+        "name": "Star Sports 2"
+    },
+    {
+        "id": "gazitv",
+        "stream": "bk/1",
+        "name": "Gazi tv"
+    },
+    {
+        "id": "sonyten1",
+        "stream": "bk/20",
+        "name": "Sony Ten Sports 1"
+    },
+    {
+        "id": "sonyten2",
+        "stream": "bk/21",
+        "name": "Sony Ten Spoets 2"
+    },
+    {
+        "id": "sonyten3",
+        "stream": "bk/22",
+        "name": "Sony Ten Sports 3"
+    },
+    {
+        "id": "sonysix",
+        "stream": "bk/24",
+        "name": "Sony Six"
+    },
+    {
+        "id": "eurosports",
+        "stream": "toffee/euro_sports_hd",
+        "name": "Euro Sports"
+    },
+    {
+        "id": "tencricket",
+        "stream": "toffee/ten_cricket",
+        "name": "Ten Cricket"
+    },
+    {
+        "id": "starsportsselect2",
+        "stream": "bk/28",
+        "name": "Star Sports select 2"
+    },
+    {
+        "id": "starsportsselect1",
+        "stream": "bk/27",
+        "name": "Star Sports select 1"
+    },
+    {
+        "id": "dubaisports",
+        "stream": "bk/dubai-sports",
+        "name": "Dubai Sports"
+    },
+    {
+        "id": "starjalsha",
+        "stream": "bk/30",
+        "name": "Star Jalsha HD"
+    },
+    {
+        "id": "starjalshamovies",
+        "stream": "bk/31",
+        "name": "Jalsha Movies"
+    },
+    {
+        "id": "zeebangla",
+        "stream": "bk/34",
+        "name": "Zee Bangla HD"
+    },
+    {
+        "id": "zeebanglacinema",
+        "stream": "bk/29",
+        "name": "Zee Bangla Cinema"
+    },
+    {
+        "id": "colorsbangla",
+        "stream": "bk/66",
+        "name": "Colors Bangla HD"
+    },
+    {
+        "id": "sonyaath",
+        "stream": "bk/33",
+        "name": "Sony Aath"
+    },
+    {
+        "id": "stargoldselect",
+        "stream": "bk/72",
+        "name": "Star gold select"
+    },
+    {
+        "id": "sonytv",
+        "stream": "bk/38",
+        "name": "sony tv"
+    },
+    {
+        "id": "sonymax",
+        "stream": "bk/77",
+        "name": "Sony max"
+    },
+    {
+        "id": "sonymaxhd",
+        "stream": "toffee/sony_max_hd",
+        "name": "Sony max hd"
+    },
+    {
+        "id": "sonymax2",
+        "stream": "toffee/sonymax_2",
+        "name": "Sony max 2"
+    },
+    {
+        "id": "colors",
+        "stream": "bk/68",
+        "name": "Colors"
+    },
+    {
+        "id": "zeetv",
+        "stream": "bk/40",
+        "name": "Zee tv"
+    },
+    {
+        "id": "zeecinema",
+        "stream": "bk/76",
+        "name": "Zee Cinema"
+    },
+    {
+        "id": "zeeaction",
+        "stream": "toffee/zee_action",
+        "name": "Zee Action"
+    },
+    {
+        "id": "zeebollywood",
+        "stream": "toffee/zee_bollywood",
+        "name": "Zee Bollywood"
+    },
+    {
+        "id": "starplus",
+        "stream": "bk/67",
+        "name": "Star Plus"
+    },
+    {
+        "id": "andtvhd",
+        "stream": "bk/74",
+        "name": "&Tv hd"
+    },
+    {
+        "id": "andpictures",
+        "stream": "bk/100",
+        "name": "&Pictures"
+    },
+    {
+        "id": "zee-anmol",
+        "stream": "toffee/zee_anmol",
+        "name": "Zee Anmol"
+    },
+    {
+        "id": "humtv",
+        "stream": "toffee/hum_tv",
+        "name": "Hum tv"
+    },
+    {
+        "id": "hummasala",
+        "stream": "toffee/hum_masala",
+        "name": "Hum Masala"
+    },
+    {
+        "id": "humsitarey",
+        "stream": "toffee/hum_sitaray",
+        "name": "Hum Sitarey"
+    },
+    {
+        "id": "b4umovies",
+        "stream": "toffee/b4u_movies",
+        "name": "B4U Movies"
+    },
+    {
+        "id": "gaanbangla",
+        "stream": "bk/58",
+        "name": "Gaan Bangla"
+    },
+    {
+        "id": "9xm",
+        "stream": "bk/48",
+        "name": "9xm"
+    },
+    {
+        "id": "zing",
+        "stream": "toffee/Zing",
+        "name": "Zing"
+    },
+    {
+        "id": "b4umusic",
+        "stream": "toffee/b4u_music",
+        "name": "B4u Music"
+    },
+    {
+        "id": "discoveryhd",
+        "stream": "bk/83",
+        "name": "Discovery Hd"
+    },
+    {
+        "id": "discoveryscience",
+        "stream": "toffee/discovery_science",
+        "name": "Discovery Science"
+    },
+    {
+        "id": "discoveryturbo",
+        "stream": "toffee/discovery_turbo",
+        "name": "Discovery Turbo"
+    },
+    {
+        "id": "discoveryhdinvestigation",
+        "stream": "toffee/discovary_investigation_hd",
+        "name": "Discovery hd investigation"
+    },
+    {
+        "id": "cnn",
+        "stream": "toffee/cnn",
+        "name": "Cnn"
+    },
+    {
+        "id": "sonybbcearthhd",
+        "stream": "bk/44",
+        "name": "Sony bbc earth hd"
+    },
+    {
+        "id": "natgeo",
+        "stream": "bk/35",
+        "name": "Nat geo"
+    },
+    {
+        "id": "animalplanet",
+        "stream": "toffee/animal_planet_hd",
+        "name": "Animal planet"
+    },
+    {
+        "id": "cartoonnetwork",
+        "stream": "bk/79",
+        "name": "Cartoon network"
+    },
+    {
+        "id": "nick",
+        "stream": "bk/55",
+        "name": "Nick"
+    },
+    {
+        "id": "pogo",
+        "stream": "toffee/pogo_sd",
+        "name": "Pogo"
+    },
+    {
+        "id": "discoverykids",
+        "stream": "toffee/discovery_kids",
+        "name": "Discovery kids"
+    },
+    {
+        "id": "sonyyay",
+        "stream": "toffee/sonyyay",
+        "name": "Sony yay"
+    },
+    {
+        "id": "ekushytv",
+        "stream": "bk/65",
+        "name": "Ekushy tv"
+    },
+    {
+        "id": "jamunatv",
+        "stream": "bk/13",
+        "name": "Jamuna tv"
+    },
+    {
+        "id": "nagoriktv",
+        "stream": "bk/59",
+        "name": "Nagorik tv"
+    },
+    {
+        "id": "asiantv",
+        "stream": "edge/asian-tv",
+        "name": "Asian tv"
+    },
+    {
+        "id": "atnbangla",
+        "stream": "bk/2",
+        "name": "Atn bangla"
+    },
+    {
+        "id": "atnnews",
+        "stream": "bk/49",
+        "name": "Atn news"
+    },
+    {
+        "id": "banglavisiontv",
+        "stream": "bk/3",
+        "name": "Banglavision tv"
+    },
+    {
+        "id": "banglatv",
+        "stream": "bk/19",
+        "name": "Bangla tv"
+    },
+    {
+        "id": "boishakhitv",
+        "stream": "bk/61",
+        "name": "Boishakhi tv"
+    },
+    {
+        "id": "btv",
+        "stream": "bk/53",
+        "name": "Btv"
+    },
+    {
+        "id": "btvworld",
+        "stream": "bk/84",
+        "name": "Btv world"
+    },
+    {
+        "id": "channel24",
+        "stream": "bk/5",
+        "name": "Channel 24"
+    },
+    {
+        "id": "channel9",
+        "stream": "bk/4",
+        "name": "Channel 9"
+    },
+    {
+        "id": "channeli",
+        "stream": "bk/6",
+        "name": "Channel i"
+    },
+    {
+        "id": "dbcnews",
+        "stream": "bk/7",
+        "name": "DBC news"
+    },
+    {
+        "id": "deeptotv",
+        "stream": "bk/8",
+        "name": "Deepto tv"
+    },
+    {
+        "id": "deshtv",
+        "stream": "bk/9",
+        "name": "Desh tv"
+    },
+    {
+        "id": "durontotv",
+        "stream": "bk/10",
+        "name": "Duronto tv"
+    },
+    {
+        "id": "ekattortv",
+        "stream": "bk/11",
+        "name": "Ekattor tv"
+    },
+    {
+        "id": "independenttv",
+        "stream": "bk/12",
+        "name": "Independent tv"
+    },
+    {
+        "id": "maasranga",
+        "stream": "bk/51",
+        "name": "Maasranga"
+    },
+    {
+        "id": "mohonatv",
+        "stream": "bk/50",
+        "name": "Mohona tv"
+    },
+    {
+        "id": "moviebanglatv",
+        "stream": "bk/86",
+        "name": "Movie bangla tv"
+    },
+    {
+        "id": "mytv",
+        "stream": "bk/56",
+        "name": "My tv"
+    },
+    {
+        "id": "news24",
+        "stream": "bk/18",
+        "name": "News24"
+    },
+    {
+        "id": "ntv",
+        "stream": "bk/54",
+        "name": "Ntv"
+    },
+    {
+        "id": "rtv",
+        "stream": "bk/14",
+        "name": "Rtv"
+    },
+    {
+        "id": "satv",
+        "stream": "bk/15",
+        "name": "SA tv"
+    },
+    {
+        "id": "sangsadtv",
+        "stream": "bk/88",
+        "name": "Sangsad tv"
+    },
+    {
+        "id": "somoytv",
+        "stream": "bk/17",
+        "name": "Somoy tv"
+    },
+    {
+        "id": "ekhon",
+        "stream": "ext/ekhon-tv",
+        "name": "Ekhon Tv"
+    },
+    {
+        "id": "bijoy-tv",
+        "stream": "ext/bijoy-tv",
+        "name": "Bijoy tv"
+    },
+    {
+        "id": "starmovies",
+        "stream": "bk/starmovies",
+        "name": "Star movies"
+    },
+    {
+        "id": "zeecafehd",
+        "stream": "toffee/zee_cafe_hd",
+        "name": "Zee cafe hd"
+    },
+    {
+        "id": "sonypix",
+        "stream": "bk/41",
+        "name": "Sony pix"
+    },
+    {
+        "id": "dwnews",
+        "stream": "bk/85",
+        "name": "DW news"
+    },
+    {
+        "id": "aljazeera",
+        "stream": "bk/89",
+        "name": "Al Jazeera"
+    }
+]
