@@ -1,8 +1,7 @@
-// requester.js
 const axios = require('axios');
 
 /**
- * Send POST request with plain text data, custom User-Agent, and non-encrypted Authorization
+ * Send POST request with plain text data, custom User-Agent, and Base64 encoded Authorization
  * @param {string} url - Request URL
  * @param {object} options - Options
  * @param {string} options.userAgent - User-Agent
@@ -14,8 +13,8 @@ const axios = require('axios');
 async function postRequest(url, options = {}) {
     const { userAgent = '', username = '', password = '', data = '' } = options;
 
-    // Non-encoded Authorization header
-    const authHeader = `Basic ${username}:${password}`;
+    // Base64 encoded Authorization header (PHP-compatible)
+    const authHeader = 'Basic ' + Buffer.from(`${username}:${password}`).toString('base64');
 
     try {
         const response = await axios.post(url, data, {
@@ -26,7 +25,6 @@ async function postRequest(url, options = {}) {
             }
         });
 
-        // শুধু response data রিটার্ন করবে
         return response.data;
     } catch (error) {
         if (error.response) {
