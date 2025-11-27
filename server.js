@@ -11,7 +11,7 @@ const { makeAuthPostRequest } = require('./getToken');
 const app = express();
 const PORT = process.env.PORT || 3000;
 
-// Load channel.json
+// Load channel.using 
 let channels = [];
 try {
     const filePath = path.join(__dirname, "channel.json");
@@ -110,6 +110,40 @@ ${finalURL}
     console.log(`[DEBUG] Generated master playlist for channel: ${ch.channelname}`);
     res.setHeader("Content-Type", "application/x-mpegURL");
     res.send(playlist);
+});
+
+app.get("/tracks-v1a1/:channel_name/mono.ts.m3u8",(req,res)=>{
+    const {} = req.header.
+});
+
+app.get("/", (req, res) => {
+    // Authorization header বা অন্য কোনো হেডার নেওয়া
+    const { authorization, 'user-agent': userAgent } = req.headers;
+
+    console.log("Authorization:", authorization);
+    console.log("User-Agent:", userAgent);
+
+    
+
+    if(userAgent=="abc"){
+
+res.send({
+        message: "Headers received",
+        authorization,
+        userAgent
+    });
+
+        
+    }else{
+
+res.send({
+        message: "Headers received",
+        authorization,
+        userAgent
+    });
+
+        
+    }
 });
 
 
