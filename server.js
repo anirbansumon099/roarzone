@@ -4,6 +4,10 @@ const fs = require("fs");
 const path = require("path");
 const { URL } = require("url"); 
 
+
+const { postRequest } = require('./requester');
+
+
 const app = express();
 const PORT = process.env.PORT || 3000;
 
@@ -60,6 +64,7 @@ async function fetchTokenedURL(stream) {
     }
 }
 
+
 // Helper function to extract token and update URL path
 function updateM3U8Path(fetchedURL) {
     let finalURL = fetchedURL;
@@ -106,6 +111,18 @@ ${finalURL}
     res.setHeader("Content-Type", "application/x-mpegURL");
     res.send(playlist);
 });
+
+
+
+app.get("/token",(req,res)=>{
+
+const a
+
+    
+});
+
+
+
 
 // Aggregated playlist for all channels - চূড়ান্ত সংশোধিত রুট
 app.get("/all/playlists.m3u", async (req, res) => {
