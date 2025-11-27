@@ -110,7 +110,7 @@ app.get("/tracks-v1a1/:channel_name/mono.ts.m3u8", async (req, res) => {
     const channelName = req.params.channel_name;
     console.log(`[DEBUG] Requested tracks-v1a1 for channel: ${channelName}`);
 
-    const ch = channels.find(c => c.channelname === channelName);
+    const ch = channels.find(c => c.id === channelName);
     if (!ch) return res.status(404).send("#EXTM3U\n#EXT-X-ERROR: Channel Not Found");
 
     try {
