@@ -116,7 +116,7 @@ app.get("/tracks-v1a1/:channel_name/mono.ts.m3u8",(req,res)=>{
    // const {} = req.header.
 });
 
-app.get("/", (req, res) => {
+app.get("/check", (req, res) => {
     // Authorization header বা অন্য কোনো হেডার নেওয়া
     const { authorization, 'user-agent': userAgent } = req.headers;
 
