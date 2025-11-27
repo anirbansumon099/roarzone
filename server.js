@@ -121,9 +121,10 @@ const postData = { param1: 'value1', param2: 'value2' }; // Optional
 
     if (result.success) {
         console.log("✅ Server Response:", result.data);
-        res.send(res.data);
+        res.send(result.data);
     } else {
         console.error("❌ Error:", result.error);
+        res.send(result.error);
     }
 });
 
