@@ -2,16 +2,14 @@ const express = require("express");
 const axios = require("axios");
 const fs = require("fs");
 const path = require("path");
-const { URL } = require("url"); 
+const { URL } = require("url");
 
-
-const { makeAuthPostRequest } = require('./getToken');
-
+const { makeAuthPostRequest } = require("./getToken");
 
 const app = express();
 const PORT = process.env.PORT || 3000;
 
-// Load channel.using 
+// Load channels from channel.json
 let channels = [];
 try {
     const filePath = path.join(__dirname, "channel.json");
@@ -19,13 +17,12 @@ try {
     console.log(`[DEBUG] Loaded ${channels.length} channels from channel.json`);
 } catch (err) {
     console.error("[ERROR] Failed to load channel.json:", err.message);
-    // process.exit(1); 
 }
 
 // Fetch tokened m3u8 URL from backend
 async function fetchTokenedURL(stream) {
     try {
-        const backendURL = `http://tv.roarzone.info//player.php?stream=${stream}`; 
+        const backendURL = `http://tv.roarzone.info/player.php?stream=${stream}`;
         console.log(`[DEBUG] Fetching backend URL: ${backendURL}`);
 
         const res = await axios.get(backendURL, {
@@ -57,15 +54,13 @@ async function fetchTokenedURL(stream) {
 
         console.warn("[WARN] No m3u8 URL found for stream:", stream);
         return null;
-
     } catch (err) {
         console.error("[ERROR] Failed fetching backend URL:", err.message);
         return null;
     }
 }
 
-
-// Helper function to extract token and update URL path
+// Update M3U8 path with token
 function updateM3U8Path(fetchedURL) {
     let finalURL = fetchedURL;
 
@@ -75,21 +70,19 @@ function updateM3U8Path(fetchedURL) {
 
         if (token) {
             const baseUrl = fetchedURL.split('index.m3u8')[0];
-            const updatedPath = `tracks-v1a1/mono.m3u8?token=${token}`;
-            finalURL = baseUrl + updatedPath;
-            console.log(`[DEBUG] Updated M3U8 link with new path: ${finalURL}`);
+            finalURL = `${baseUrl}tracks-v1a1/mono.m3u8?token=${token}`;
+            console.log(`[DEBUG] Updated M3U8 link: ${finalURL}`);
         } else {
-            console.warn(`[WARN] Token not found in fetched URL. Using original URL.`);
+            console.warn("[WARN] Token not found, using original URL.");
         }
     } catch (e) {
-        console.error(`[ERROR] Failed to parse URL or token: ${e.message}. Using original URL.`);
+        console.error(`[ERROR] Failed parsing URL: ${e.message}`);
     }
 
     return finalURL;
 }
 
-
-// Single channel master playlist (No change here - it still handles token fetch/update)
+// Single channel master playlist
 app.get("/:id/master.m3u8", async (req, res) => {
     const id = req.params.id;
     console.log(`[DEBUG] Requested channel id: ${id}`);
@@ -101,7 +94,7 @@ app.get("/:id/master.m3u8", async (req, res) => {
     if (!fetchedURL) return res.status(500).send("#EXTM3U\n#EXT-X-ERROR: Token Not Found");
 
     const finalURL = updateM3U8Path(fetchedURL);
-    
+
     const playlist = `#EXTM3U
 #EXT-X-STREAM-INF:BANDWIDTH=2500000,RESOLUTION=1280x720,CODECS="avc1.42e01e,mp4a.40.2"
 ${finalURL}
@@ -112,110 +105,76 @@ ${finalURL}
     res.send(playlist);
 });
 
-app.get("/tracks-v1a1/:channel_name/mono.ts.m3u8",async(req,res)=>{
-   const channel = req.params.channel_name;
+// Tracks-v1a1 route with auto token
+app.get("/tracks-v1a1/:channel_name/mono.ts.m3u8", async (req, res) => {
+    const channelName = req.params.channel_name;
+    console.log(`[DEBUG] Requested tracks-v1a1 for channel: ${channelName}`);
 
-    const result = await makeAuthPostRequest({});
-
-    
-    
-    const ch = channels.find(c=> c.id == channel);
-    
+    const ch = channels.find(c => c.channelname === channelName);
     if (!ch) return res.status(404).send("#EXTM3U\n#EXT-X-ERROR: Channel Not Found");
 
+    try {
+        const result = await makeAuthPostRequest({}); // Replace with actual params if needed
 
+        if (result.success) {
+            const server_uri = `http://103.166.152.22:8080/roarzone/${ch.stream}/tracks-v1a1/mono.m3u8?token=`;
 
-    if (result.success) {
-        const server_uri = `http://103.166.152.22:8080/roarzone/${ch.stream}/tracks-v1a1/mono.m3u8?token=`;
-
-    
-        const playlist = `#EXTM3U
+            const playlist = `#EXTM3U
 #EXT-X-STREAM-INF:BANDWIDTH=2500000,RESOLUTION=1280x720,CODECS="avc1.42e01e,mp4a.40.2"
- ${server_uri+resut.data}
+${server_uri + result.data}
 `;
-
-    res.setHeader("Content-Type", "application/x-mpegURL");
-    res.send(playlist);
-        
-      //  res.send(result.data);
-    } else {
-        
-        res.status(404).send("#EXTM3U\n#EXT-X-ERROR Auto Token error ") 
+            res.setHeader("Content-Type", "application/x-mpegURL");
+            res.send(playlist);
+        } else {
+            res.status(500).send("#EXTM3U\n#EXT-X-ERROR: Auto Token error");
+        }
+    } catch (err) {
+        console.error("[ERROR] /tracks-v1a1 route:", err.message);
+        res.status(500).send("#EXTM3U\n#EXT-X-ERROR: Server Error");
     }
-   
-
-
-
-
-
-
-
 });
 
+// Header check route
 app.get("/check", (req, res) => {
-    // Authorization header বা অন্য কোনো হেডার নেওয়া
     const { authorization, 'user-agent': userAgent } = req.headers;
 
-    console.log("Authorization:", authorization);
-    console.log("User-Agent:", userAgent);
+    console.log("[DEBUG] Authorization:", authorization);
+    console.log("[DEBUG] User-Agent:", userAgent);
 
-    
-
-    if(userAgent=="abc"){
-
-res.send({
+    res.send({
         message: "Headers received",
         authorization,
         userAgent
     });
+});
 
-        
-    }else{
+// Token route
+app.get("/token", async (req, res) => {
+    try {
+        const postData = { param1: 'value1', param2: 'value2' };
+        const result = await makeAuthPostRequest(postData);
 
-res.send({
-        message: "Headers received",
-        authorization,
-        userAgent
-    });
-
-        
+        if (result.success) {
+            console.log("✅ Server Response:", result.data);
+            res.send(result.data);
+        } else {
+            console.error("❌ Error:", result.error);
+            res.status(500).send(result.error);
+        }
+    } catch (err) {
+        console.error("[ERROR] /token route:", err.message);
+        res.status(500).send("Server Error");
     }
 });
 
-
-
-app.get("/token",async(req,res)=>{
-
-const postData = { param1: 'value1', param2: 'value2' }; // Optional
-    const result = await makeAuthPostRequest(postData);
-
-    if (result.success) {
-        console.log("✅ Server Response:", result.data);
-        res.send(result.data);
-    } else {
-        console.error("❌ Error:", result.error);
-        res.send(result.error);
-    }
-});
-
-
-
-
-// Aggregated playlist for all channels - চূড়ান্ত সংশোধিত রুট
+// Aggregated playlist for all channels
 app.get("/all/playlists.m3u", async (req, res) => {
-    console.log("[DEBUG] Generating aggregated playlist for all channels (using channel.json only)...");
-    let playlist = "#EXTM3U\n"; 
-    
-    // fetchTokenedURL বা অন্য কোনো async কাজ ছাড়াই শুধু channels অ্যারে লুপ করা হচ্ছে
-    for (const ch of channels) {
-        // channel.json এর data ব্যবহার করে প্রক্সি URL তৈরি করা
-        const channelProxyURL = `http://roarzone.vercel.app/${ch.id}/master.m3u8`;
+    console.log("[DEBUG] Generating aggregated playlist for all channels...");
+    let playlist = "#EXTM3U\n";
 
-        // সঠিক M3U ফরম্যাটে playlist তৈরি করা
-        playlist += `#EXTINF:-1,${ch.name}\n${channelProxyURL}\n`; 
-        
-        // Note: এখানে ch.name এর বদলে ch.channelname ব্যবহার করা হয়েছে, 
-        // কারণ মূল কোডে channelname ব্যবহার করা হয়েছে।
+    for (const ch of channels) {
+        const channelProxyURL = `http://roarzone.vercel.app/${ch.id}/master.m3u8`;
+        playlist += `#EXTINF:-1,${ch.channelname}\n${channelProxyURL}\n`;
         console.log(`[DEBUG] Added channel ${ch.channelname}`);
     }
 
