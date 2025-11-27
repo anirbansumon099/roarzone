@@ -1,61 +1,71 @@
-// CommonJS সিনট্যাক্স ব্যবহার করে axios ইম্পোর্ট করা
+// axios_auth.js
 const axios = require('axios');
 const { URL } = require('url');
 
-// --- 🔒 ক্লায়েন্ট কনফিগারেশন (মডিউলের ভিতরে সুরক্ষিত) ---
+/**
+ * 🔒 Client configuration
+ */
 const CLIENT_CONFIG = {
     USERNAME: 'admin',
     PASSWORD: 'admin123',
     BASE_URL: 'http://tv.roarzone.info/app.php',
     USER_AGENT: 'Rangdhanu Live 1.0'
 };
-// ----------------------------------------------------
-
 
 /**
  * @function makeAuthPostRequest
- * কনফিগারেশনে থাকা ক্লায়েন্ট বিবরণ ব্যবহার করে একটি POST রিকোয়েস্ট করে।
- * @returns {Promise<Object>} axios থেকে প্রাপ্ত সম্পূর্ণ Response Object.
+ * Basic Auth সহ POST request পাঠায় এবং response data সরাসরি ফিরিয়ে দেয়।
+ * @param {Object|null} postData - যদি POST body থাকে, তা এখানে পাঠাতে হবে (JSON)
+ * @returns {Promise<Object>} সফল হলে { success: true, data: <response_data> }
+ * ব্যর্থ হলে { success: false, error: <error_details> }
  */
-async function makeAuthPostRequest() {
-  
-  const { USERNAME, PASSWORD, BASE_URL, USER_AGENT } = CLIENT_CONFIG;
+async function makeAuthPostRequest(postData = null) {
+    const { USERNAME, PASSWORD, BASE_URL, USER_AGENT } = CLIENT_CONFIG;
 
-  // URL অবজেক্ট তৈরি করা এবং ইউজারনেম/পাসওয়ার্ড যুক্ত করা
-  const urlWithAuth = new URL(BASE_URL);
-  urlWithAuth.username = USERNAME;
-  urlWithAuth.password = PASSWORD;
-  
-  const finalUrl = urlWithAuth.href;
+    // URL-এ Basic Auth যোগ করা
+    const urlWithAuth = new URL(BASE_URL);
+    urlWithAuth.username = USERNAME;
+    urlWithAuth.password = PASSWORD;
 
-  try {
-    const response = await axios.post(
-      finalUrl, 
-      null, // ডেটা বডি ফাঁকা
-      {
-        headers: {
-          // কাস্টম User-Agent হেডার
-          'User-Agent': USER_AGENT,
-        },
-      }
-    );
+    try {
+        const response = await axios.post(
+            urlWithAuth.href,
+            postData,
+            {
+                headers: {
+                    'User-Agent': USER_AGENT,
+                    'Content-Type': 'application/json'
+                },
+                auth: {
+                    username: USERNAME,
+                    password: PASSWORD
+                }
+            }
+        );
 
-    // সফল হলে সম্পূর্ণ Response Object রিটার্ন করা
-    return response; 
+        // ✅ Response data সরাসরি ফিরিয়ে দিচ্ছে
+        return { success: true, data: response.data };
 
-  } catch (error) {
-    // ত্রুটি হ্যান্ডেলিং: ত্রুটির সময়ও যদি Response থাকে, তবে সেটি রিটার্ন করা।
-    if (error.response) {
-      // 4xx বা 5xx ত্রুটির সময়ও response অবজেক্টটি থ্রো করা
-      throw error.response; 
-    } else {
-      // নেটওয়ার্ক বা অন্য কোনো ত্রুটি থ্রো করা
-      throw new Error(`Network Error: ${error.message}`);
+    } catch (error) {
+        let errorDetails = {};
+
+        if (error.response) {
+            errorDetails = {
+                message: `API Request Failed (Status: ${error.response.status})`,
+                status: error.response.status,
+                data: error.response.data
+            };
+        } else if (error.request) {
+            errorDetails = { message: "Network Error: No response received from server." };
+        } else {
+            errorDetails = { message: `Request Setup Error: ${error.message}` };
+        }
+
+        return { success: false, error: errorDetails };
     }
-  }
 }
 
-// CommonJS সিনট্যাক্স: ফাংশনটিকে মডিউল হিসেবে এক্সপোর্ট করা
+// ✅ ফাংশন এক্সপোর্ট করা যাতে অন্য ফাইলে ব্যবহার করা যায়
 module.exports = {
-    makeAuthPostRequest: makeAuthPostRequest
+    makeAuthPostRequest
 };
