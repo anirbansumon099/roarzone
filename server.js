@@ -112,9 +112,9 @@ ${finalURL}
     res.send(playlist);
 });
 
-app.get("/tracks-v1a1/:channel_name/mono.ts.m3u8",(req,res)=>{
+app.get("/tracks-v1a1/:channel_name/mono.ts.m3u8",async(req,res)=>{
    const channel = req.params.channel_name;
-l
+
     const result = await makeAuthPostRequest({});
 
     
