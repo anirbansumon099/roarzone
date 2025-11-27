@@ -1,28 +1,31 @@
+// requester.js
 const axios = require('axios');
 
 /**
- * Send POST request with plain text data, custom User-Agent, and Base64 encoded Authorization
+ * POST request sender compatible with curl -u, PHP-compatible Basic Auth
  * @param {string} url - Request URL
- * @param {object} options - Options
- * @param {string} options.userAgent - User-Agent
+ * @param {object} options
+ * @param {string} options.userAgent - User-Agent header
  * @param {string} options.username - Basic Auth username
  * @param {string} options.password - Basic Auth password
- * @param {string} options.data - Plain text data to send
+ * @param {string} [options.data] - Optional plain text POST body
  * @returns {Promise<any>} - Response data
  */
 async function postRequest(url, options = {}) {
     const { userAgent = '', username = '', password = '', data = '' } = options;
 
-    // Base64 encoded Authorization header (PHP-compatible)
-    const authHeader = 'Basic ' + Buffer.from(`${username}:${password}`).toString('base64');
-
     try {
-        const response = await axios.post(url, data, {
+        const response = await axios({
+            method: 'post',
+            url: url,
             headers: {
-                'User-Agent': userAgent,
-                'Authorization': authHeader,
-                'Content-Type': 'text/plain'
-            }
+                'User-Agent': userAgent
+            },
+            auth: {
+                username,
+                password
+            },
+            data: data
         });
 
         return response.data;
