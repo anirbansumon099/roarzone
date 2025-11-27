@@ -120,6 +120,7 @@ app.get("/tracks-v1a1/:channel_name/mono.ts.m3u8", async (req, res) => {
             const server_uri = `http://103.166.152.22:8080/roarzone/${ch.stream}/tracks-v1a1/mono.m3u8?token=`;
 
             const playlist = `#EXTM3U
+            #Kicu-chodnar-polar-jonno-server-token-cracks-system-kora,
 #EXT-X-STREAM-INF:BANDWIDTH=2500000,RESOLUTION=1280x720,CODECS="avc1.42e01e,mp4a.40.2"
 ${server_uri + result.data}
 `;
@@ -173,7 +174,7 @@ app.get("/all/playlists.m3u", async (req, res) => {
     let playlist = "#EXTM3U\n";
 
     for (const ch of channels) {
-        const channelProxyURL = `http://roarzone.vercel.app/${ch.id}/master.m3u8`;
+        const channelProxyURL = `http://roarzone.vercel.app/tracks-v1a1/${ch.id}/mono.ts.m3u8`;
         playlist += `#EXTINF:-1,${ch.channelname}\n${channelProxyURL}\n`;
         console.log(`[DEBUG] Added channel ${ch.channelname}`);
     }
