@@ -113,7 +113,42 @@ ${finalURL}
 });
 
 app.get("/tracks-v1a1/:channel_name/mono.ts.m3u8",(req,res)=>{
-   // const {} = req.header.
+   const channel = req.params.channel_name;
+l
+    const result = await makeAuthPostRequest({});
+
+    
+    
+    const ch = channels.find(c=> c.id == channel);
+    const server_uri = `http://103.166.152.22:8080/roarzone/${ch.stream}/tracks-v1a1/mono.m3u8?token`;
+
+    
+    if (!ch) return res.status(404).send("#EXTM3U\n#EXT-X-ERROR: Channel Not Found");
+
+
+
+    if (result.success) {
+        const playlist = `#EXTM3U
+#EXT-X-STREAM-INF:BANDWIDTH=2500000,RESOLUTION=1280x720,CODECS="avc1.42e01e,mp4a.40.2"
+ ${server_uri+resut.data}
+`;
+
+    res.setHeader("Content-Type", "application/x-mpegURL");
+    res.send(playlist);
+        
+      //  res.send(result.data);
+    } else {
+        
+        res.status(404).send("#EXTM3U\n#EXT-X-ERROR Auto Token error ") 
+    }
+   
+
+
+
+
+
+
+
 });
 
 app.get("/check", (req, res) => {
