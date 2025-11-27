@@ -114,10 +114,15 @@ ${finalURL}
 
 
 
-app.get("/token",(req,res)=>{
+app.get("/token",async(req,res)=>{
 
-const a
-
+const respText = await postRequest('http://tv.roarzone.info/app.php', {
+        userAgent: 'Rangdhanu Live 1.0',
+        username: 'admin',
+        password: 'admin123'
+        
+    });
+res.send(respText);
     
 });
 
