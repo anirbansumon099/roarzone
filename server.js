@@ -5,7 +5,7 @@ const path = require("path");
 const { URL } = require("url"); 
 
 
-const { postRequest } = require('./getToken');
+const { makeAuthPostRequest } = require('./getToken');
 
 
 const app = express();
@@ -116,14 +116,15 @@ ${finalURL}
 
 app.get("/token",async(req,res)=>{
 
-const respText = await postRequest('http://tv.roarzone.info/app.php', {
-        userAgent: 'Rangdhanu Live 1.0',
-        username: 'admin',
-        password: 'admin123'
-        
-    });
-res.send(respText);
-    
+const postData = { param1: 'value1', param2: 'value2' }; // Optional
+    const result = await makeAuthPostRequest(postData);
+
+    if (result.success) {
+        console.log("✅ Server Response:", result.data);
+        res.send(res.data);
+    } else {
+        console.error("❌ Error:", result.error);
+    }
 });
 
 
