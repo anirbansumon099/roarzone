@@ -152,7 +152,7 @@ app.get("/check", (req, res) => {
 // Token route
 app.get("/token", async (req, res) => {
     try {
-        const postData = { param1: 'value1', param2: 'value2' };
+        const postData = {  };
         const result = await makeAuthPostRequest(postData);
 
         if (result.success) {
@@ -176,7 +176,7 @@ app.get("/all/playlists.m3u", async (req, res) => {
     for (const ch of channels) {
         const channelProxyURL = `http://roarzone.vercel.app/tracks-v1a1/${ch.id}/mono.ts.m3u8`;
         playlist += `#EXTINF:-1,${ch.channelname}\n${channelProxyURL}\n`;
-        console.log(`[DEBUG] Added channel ${ch.channelname}`);
+        console.log(`[DEBUG] Added channel ${ch.name}`);
     }
 
     res.setHeader("Content-Type", "application/x-mpegURL");
