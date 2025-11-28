@@ -175,7 +175,7 @@ app.get("/all/playlists.m3u", async (req, res) => {
 
     for (const ch of channels) {
         const channelProxyURL = `http://roarzone.vercel.app/tracks-v1a1/${ch.id}/mono.ts.m3u8`;
-        playlist += `#EXTINF:-1,${ch.channelname}\n${channelProxyURL}\n`;
+        playlist += `#EXTINF:-1,${ch.name}\n${channelProxyURL}\n`;
         console.log(`[DEBUG] Added channel ${ch.name}`);
     }
 
