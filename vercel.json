@@ -4,8 +4,6 @@
     { "src": "server.js", "use": "@vercel/node" }
   ],
   "routes": [
-    { "src": "/admin/(.*)", "dest": "/server.js" },
-    { "src": "/get-stream", "dest": "/server.js" },
-    { "src": "/(.*)", "dest": "/server.js" }
+    { "src": "/(.*)", "dest": "server.js" }
   ]
 }
